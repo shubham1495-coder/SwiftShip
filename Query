@@ -1,0 +1,64 @@
+//Show how many "Successful" vs. "Returned" deliveries each Partner handled.
+
+SELECT 
+    p.PartnerName, 
+    d.DeliveryStatus, 
+    COUNT(d.LogID) AS TotalDeliveries
+FROM Partners p
+JOIN Shipments s ON p.PartnerID = s.PartnerID
+JOIN DeliveryLogs d ON s.ShipmentID = d.ShipmentID
+WHERE d.DeliveryStatus IN ('Successful', 'Returned')
+GROUP BY p.PartnerName, d.DeliveryStatus
+ORDER BY p.PartnerName, d.DeliveryStatus;
+
+
+//Identify the most popular "Destination City" for orders placed in the last 30 days.
+
+SELECT 
+    DestinationCity, 
+    COUNT(ShipmentID) AS OrderCount
+FROM Shipments
+WHERE OrderDate >= CURRENT_DATE - INTERVAL 30 DAY
+GROUP BY DestinationCity
+ORDER BY OrderCount DESC
+LIMIT 1;
+
+
+//Find all shipments where the ActualDeliveryDate is greater than the PromisedDate.
+
+SELECT 
+    s.ShipmentID, 
+    p.PartnerName, 
+    s.PromisedDate, 
+    d.ActualDeliveryDate
+FROM Shipments s
+JOIN DeliveryLogs d ON s.ShipmentID = d.ShipmentID
+JOIN Partners p ON s.PartnerID = p.PartnerID
+WHERE d.ActualDeliveryDate > s.PromisedDate;
+
+
+//The "Partner Scorecard"
+//Show which company has the fewest delays.
+
+SELECT 
+    p.PartnerName, 
+    COUNT(s.ShipmentID) AS TotalDelays
+FROM Partners p
+JOIN Shipments s ON p.PartnerID = s.PartnerID
+JOIN DeliveryLogs d ON s.ShipmentID = d.ShipmentID
+WHERE d.ActualDeliveryDate > s.PromisedDate
+GROUP BY p.PartnerName
+ORDER BY TotalDelays ASC;
+
+
+
+
+
+
+
+
+
+
+
+
+
